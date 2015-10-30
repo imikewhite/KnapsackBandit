@@ -27,11 +27,11 @@ def knapsack(activities, knapsack_size):
     Solve the knapsack problem by finding the most valuable
     subsequence of `activities` that weights no more than `knapsack_size`.
 
-    `activities` is a sequence of pairs `(value, weight)`, where `value` is
-    a number representing how many calories burned and `weight` is a
-     non-negative integer representing how long it takes to complete said activity 
+    `activities` is a sequence of pairs `(value, weight)`, 
+     `value` is a number representing a combination of adhearance and Energy expenditure
+     `weight` is a number representing the Energy expenditure alone
 
-    `knapsack_size` is a non-negative integer.
+    `knapsack_size` is a non-negative integer. Represents the goal amount of energy expenditure
 
     Return a pair whose first element is the sum of values in the most
     valuable subsequence, and whose second element is the subsequence.
