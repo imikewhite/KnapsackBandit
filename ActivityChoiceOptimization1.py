@@ -15,27 +15,29 @@ import numpy as np
 
 
 
-def add_new_activity(activity_list, payoff_length, argument):
+def add_new_activity(activity_list, payoff, length, argument):
 	#adds any new activities to the list
 	with open(argument , "r") as filestream:
 		for line in filestream:
 			currentline = line.split(",")
 			activity = [float(currentline[1]), float(currentline[2])]
-			length = currentline[6]
-			p_and_l = [float(currentline[3]), float(length[:-1])]
+			leng = currentline[6]
+			p = [float(currentline[3])]
+			l = [float(leng[:-1])]
 			if (activity not in activity_list):
 				activity_list.append(activity)
-				payoff_length.append(p_and_l)
-			else:
-				pass
+				payoff.append(p)
+				length.append(l)
 	#Updates running data file with newest list of activites and payoffs etc. 
 	if os.path.isfile('Newest_data.txt'):
 		open('Newest_data.txt', 'w').close()
 	file = open('Newest_data.txt', 'w') 
 	file.write("Activities: [")
 	file.write(str(activity_list).strip('[]') + '] end')
-	file.write("\n \n Payoffs and Lengths: [")
-	file.write(str(payoff_length).strip('[]') + '] end')
+	file.write("\n \nPayoffs: [")
+	file.write(str(payoff).strip('[]') + '] end')
+	file.write("\n \nLengths: [")
+	file.write(str(length).strip('[]') + '] end')
 	file.close()
 
 def activity_completed(activity):
@@ -91,6 +93,20 @@ def string_to_list(lst,string):
 			lst.append([float(first_entry),float(second_entry)]) 
 			return string_to_list(lst, working_second[working_second.find(',')+2:])
 
+def string_to_list_single(lst,string):
+	if len(string) == 0:
+		return lst
+	else:
+		entry = string[:string.find(',')]
+		last = string[string.find(',')+2:]
+		if last.find(',') == -1:
+			lst.append([float(entry)])
+			lst.append([float(last)]) 
+			return lst
+		else:
+			lst.append([float(entry)])
+			return string_to_list_single(lst, last)
+
 # Working on keeping a running mean with adhearance.
 # Where x is a vector of the values for an activity each day (where value is a combination of )
 # and N is the number of days that have passed thus far (length of x)
@@ -107,39 +123,43 @@ def append_newest_value(days_values, current_day, adhearance):
 
 
 def main():
-	activity_list=[]
-	payoff_length = []
+	activity_list = []
+	payoff = []
+	length = []
 	if len(sys.argv)==1:
 		return "No Data",  "Was Given" 
 	if len(sys.argv)==2:
 		# create a list of activities and their payoffs_lengths
-		add_new_activity(activity_list, payoff_length, sys.argv[1]) 
-		return activity_list , payoff_length
+		add_new_activity(activity_list, payoff, length, sys.argv[1]) 
+		return activity_list , payoff, length
 	if len(sys.argv)==3:
 		# First argument (after script name) is data from last day
 		with open(sys.argv[1] , "r") as filestream:
-			# retrieves lists of last days activity_list and payoff_length
+			# retrieves lists of last days activity_list and payoffs, and length
 			data = filestream.read()
 			get_acts = re.findall(r'Activities: (.*?) end',data,re.DOTALL)
 			format_acts = get_acts[0].replace('[','').replace(']','')
 			activity_list = string_to_list([],format_acts)
-			get_payoffs = re.findall(r'Payoffs and Lengths: (.*?) end',data,re.DOTALL)
+			get_payoffs = re.findall(r'Payoffs: (.*?) end',data,re.DOTALL)
 			format_payoffs = get_payoffs[0].replace('[','').replace(']','')
-			payoff_length = string_to_list([],format_payoffs)
+			payoff = string_to_list_single([],format_payoffs)
+			get_lengths = re.findall(r'Lengths: (.*?) end',data,re.DOTALL)
+			format_lengths = get_payoffs[0].replace('[','').replace(']','')
+			length = string_to_list_single([],format_lengths)
+
 			# Now using new data and yesterdays data it sees if there are
 			# any new activities and adds them to the list as appropriate.
-			print len(activity_list)
-			add_new_activity(activity_list, payoff_length, sys.argv[2])
-			print len(activity_list)
-			return activity_list , payoff_length
+			print "\nActivity Length Start: " + str(len(activity_list)) + "\nPayoffs Length Start: " + str(len(payoff)) + "\nLengths len start: " + str(len(length))
+			add_new_activity(activity_list, payoff, length, sys.argv[2])
+			print "\nActivity Length End: " + str(len(activity_list)) + "\nPayoffs Length End: " + str(len(payoff)) + "\nLengths len end: " + str(len(length))
+			return activity_list , payoff, length
 
 
 
 if __name__ == '__main__':
 	# Calls the main function and prints results to Newest_data.txt
-	a, p = main()
-	# print "\nActivity Type and Cluster ID: " + str(a) + "\n \n" + "Activity payoffs and lengths: " + str(p)
-
+	a, p, l = main()
+	print "\n len a:" + str(len(a)) + "\n Len p: " + str(len(p))
 	# Prints out demonstration of how running mean works over the course of 6 days with a starting value of 1 showing
 	# how the equation adjust appropriately the value based off of adhearence. 
 	days_values = [1]
@@ -152,13 +172,16 @@ if __name__ == '__main__':
 
 		append_newest_value(days_values,current_day,adhearance)
 
+	l_flatten = sum(l, [])
+	l_mean= sum(l_flatten)/len(l)
+	print l_mean
 
 
 
 	
 #QUESTIONS:
-	#how do we know if a person has 'adheared' to an activity? I.e. completed or passed over the activity. 
-
+	# How do we know if a person has 'adheared' to an activity? I.e. completed or passed over the activity. 
+	# What is our original goal expenditure? I.E How do we find out the starting 
 	
 
 
