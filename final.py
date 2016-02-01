@@ -9,13 +9,6 @@ from datetime import date, datetime, timedelta
 import datetime
 import math
 
-'''Note:: This program requires that the arguments passed in are as follows:
-		1 argument = First time the program is being run, argument is data of activities, payoffs, locations, etc.
-		2 arguments = First is data from the previous day named Newest_data.txt (as the program outputs)
-					  Second argument is new data that we want to combine with our previous data.
-
-		In addition: This is set to run whenever a activity is completed, even if it is the same day. 
-		In other words, newest activities must be added in order of time completed '''
 
 # Global variables used and updated by the program
 min_desired_activity=100 #Amount of activity we want users to do, may be specific to person, waiting comments from physios. # Also There needs to be a cap as well!!
@@ -490,7 +483,3 @@ if __name__ == '__main__':
 		print "Payoff Goal: " + str(min_desired_activity)
 		print "Total Payoff of all Activities: " + str(knapsack_total_payoff())
 		print "Total Adherence Weight: " + str(adherence_weight)
-
-
-		# I think instead of having to store data and output a file we should be able to just run this on a 
-		# given set of data and output a knapsack. Which is what I think your other version had done. 
